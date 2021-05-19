@@ -1,0 +1,508 @@
+\documentclass[]{ccs-thesis}
+% options:
+% [germanthesis] - Thesis is written in German
+% [plainunnumbered] - Don't print numbers on plain pages
+% [earlydraft] - Settings for quick draft printouts
+% [watermark] - Print current time/date at bottom of each page
+% [phdthesis] - switch to PhD thesis style
+% [twoside] - double sided
+% [cutmargins] - text body fills complete page
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\DeclarePairedDelimiter\Floor\lfloor\rfloor
+\DeclarePairedDelimiter\Ceil\lceil\rceil
+
+\group{Distributed Embedded Systems}
+
+% Author name. Separate multiple authors with commas.
+\author{Harshita}
+\birthday{03 October 1994}
+\birthplace{Lucknow, India}
+
+% Title of your thesis.
+\title{Provisioning radio fallback for directional wireless channels}
+
+% Choose one of the following lines. Feel free to change the word "Informatik" to match your degree program.
+\thesistype{Master's Thesis in Computer Engineering}\thesiscite{Master's Thesis~(Masterarbeit)}
+%\thesistype{Bachelor Thesis in Computer Science}\thesiscite{Bachelor Thesis~(Bachelorarbeit)}
+%\thesistype{Seminar Thesis in Computer Science}\thesiscite{Seminar Thesis~(Seminararbeit)}
+
+% List of advisors (if applicable), separated by commas.
+\advisors{Max Schettler, Muhammad Sohaib Amjad}
+
+% List of referees, separated by commas.
+\referees{Falko Dressler, Christian Scheideler}
+
+
+% Define abbreviations used in the thesis here.
+\acrodef{mmWave}{Millimeter Wave}
+\acrodef{MIMO}{Multiple Input Multiple Output}
+\acrodef{LOS}{Line of Sight}
+\acrodef{nLOS}{non Line of Sight}
+\acrodef{FEC}{Forward Error Correction}
+\acrodef{ARQ}{Automatic Repeat Request}
+\acrodef{FSPL}{Free Space Path Loss}
+\acrodef{SVD}{Singular Value Decomposition}
+\acrodef{ISI}{Inter Symbol Interference}
+\acrodef{SISO}{Single Input Single Output}
+\acrodef{LS}{Least Square}
+\acrodef{LMMSE}{Linear Minimum Mean-Square Error}
+\acrodef{MMSE}{Minimum Mean-Square Error}
+\acrodef{SNR}{Signal-to-Noise Ratio}
+\acrodef{D2D}{Device-to-Device}
+\acrodef{WiGig}{Wireless Gigabit}
+\acrodef{HD}{High Definition}
+\acrodef{LTE}{Long-Term Evolution}
+\acrodef{VLC}{Visible Light for Communication}
+\acrodef{RRC}{Root Raised Cosine}
+\acrodef{AWGN}{Additive White Gaussian Noise}
+\acrodef{QPSK}{Quadrature Phase Shift Keying}
+\acrodef{BPSK}{Binary Phase Shift Keying}
+\acrodef{BER}{Bit Error Rate}
+\acrodef{PDF}{Probability Density Function}
+\acrodef{PAPR}{Peak-to-Average Power Ratio}
+\acrodef{CDF}{Cumulative Density Function}
+\acrodef{rms}{root mean square}
+\acrodef{OFDM}{Orthogonal Frequency Division Multiplexing}
+\acrodef{IFFT}{Inverse Fast Fourier Transform}
+\acrodef{FFT}{Fast Fourier Transform}
+\acrodef{DFT}{Discrete Fourier Transform}
+\acrodef{3GPP}{3rd Generation Partnership Project}
+
+\newcommand{\MATLAB}{\textsc{Matlab}\xspace}
+
+\begin{document}
+
+\pagenumbering{roman}
+
+\maketitle
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\begin{otherlanguage*}{american}
+
+Wireless technologies have been traditionally challenged to provide sufficient data rates. A promising approach to overcome the challenge is to use novel frequency bands like \SI{28}{\GHz} or \SI{60}{\GHz} (\ac{mmWave}) or use \ac{VLC}. The \ac{mmWave} frequency bands provide ample bandwidth to realise high data rates but they also have a significant downside. \ac{LOS} is required between the transmitter and the receiver for propagation. Even small rotations of a device can lead to dramatic changes in the transmission quality. One approach to solving these problems is to have a radio fallback for the directional channels. This can be done by switching to microwave frequency bands in case of obstructions in the \ac{LOS} path.
+\par In this thesis, an algorithm is proposed for successful determination of \ac{LOS} link and for switching to microwave frequency in case of blockage. A further improvement of the proposed algorithm using channel estimation is also analysed. Based on the simulations, the results indicate that the fault-tolerant \ac{mmWave} is better in terms of throughput as compared to normal \ac{mmWave}. Fault-tolerant \ac{mmWave} also has lower latencies as compared to normal \ac{mmWave}.
+
+
+\end{otherlanguage*}
+ 
+
+\chapter*{Kurzfassung}
+\addcontentsline{toc}{chapter}{Kurzfassung}
+\begin{otherlanguage*}{ngerman}
+Drahtlose Technologien sind traditionell gefordert, ausreichende Datenraten bereitzustellen. Ein vielversprechender Ansatz zur Bewältigung dieser Herausforderung besteht darin, neuartige Frequenzbänder wie \SI{28}{\giga\hertz} oder \SI{60}{\giga\hertz} (\ac{mmWave}) oder \ac{VLC} zu verwenden. Die \ac{mmWave} -Frequenzbänder bieten eine ausreichende Bandbreite, um hohe Datenraten zu erzielen, haben jedoch auch einen erheblichen Nachteil. Für die Weitergabe ist zwischen Sender und Empfänger \ac{LOS} erforderlich. Selbst kleine drehungen eines Geräts können zu dramatischen Änderungen der Übertragungsqualität führen. Ein Ansatz zur Lösung dieser Probleme besteht darin, einen Funk-Fallback für die Richtungskanäle zu haben. Dies kann durch Umschalten auf Mikrowellenfrequenzbänder bei Hindernissen im \ac{LOS} geschehen.
+\par In dieser Arbeit wurde ein Algorithmus zur erfolgreichen Bestimmung der \ac{LOS} -Verbindung und zum Umschalten auf Mikrowellenfrequenz im Falle einer Blockierung vorgeschlagen. Eine weitere Verbesserung des vorgeschlagenen Algorithmus unter Verwendung der Kanalschätzung wird ebenfalls analysiert. Basierend auf den Simulationen zeigen die Ergebnisse, dass die fehlertolerante \ac{mmWave} hinsichtlich Durchsatz und Latenz besser ist als die normale \ac{mmWave}.
+
+
+\end{otherlanguage*}
+\acresetall
+
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+
+\label{sec:introduction}
+The increase in the amount of mobile data traffic and the emergence of various applications like mobile internet, virtual reality etc., has led to the demand for more bandwidth and higher data rates of wireless networks \cite{rappaport2011state}. Exploiting the enormous spectrum of the \ac{mmWave} bands can greatly increase the communication capacities \cite{wang2018millimeter}. One of the main advantages of the \ac{mmWave} is the broader spectrum available for communication. This can be put to use when shifting from 4G communication to 5G as broader spectrum can provide higher data rates \cite{rappaport2013millimeter}. The millimeter wave frequencies can provide fronthaul and backhaul wireless transport in radio access network architecture \cite{kuo2017millimeter}. Millimeter wave devices enable large antenna arrays to be packed in small dimensions owing to short wavelengths. This can improve signal directivity by reducing co-channel interference and enhance link reliability. Having large number of small antennas also enables the employment of \ac{MIMO} techniques, multiplexing, diversity and beamforming \cite{hemadeh2017millimeterwave}. The effect of diffraction decreases with an increase in frequency because objects such as buildings introduce sharp shadows \cite{shafi2018microwave}. 
+\par Meanwhile, \ac{mmWave} communications have few disadvantages \cite{hemadeh2017millimeterwave}.The major disadvantages of \ac{mmWave} are blockage and deafness. The high signal attenuation of \ac{mmWave} due to its inability to propagate through common objects is termed as blockage \cite{rappaport2013millimeter}. For example, millimeter waves incur a loss of 20-35 dB due to the human body and 20-30 dB due to furniture in the environment \cite{shokrighadikolaei2015millimeter}. Compared to lower frequencies, millimeter waves are more vulnerable to atmospheric attenuation and human shadowing \cite{wang2018millimeter}. Millimeter waves are also highly directional \cite{niu2015millimeter}. The misalignment between the main antenna beams of transmitter and receiver causes high signal attenuation which is known as deafness \cite{shokrighadikolaei2015millimeter}. This affects the network capacity and reliability.                    
+\par Hence, there is a need to look for fault-tolerant approaches to reduce the effects of all extreme attenuations. One method to avoid attenuation due to blockage is to use a relaying technique in which the source node uses an intermediate node (called relay) to bypass the obstacles \cite{congiu2016relay}. However, the source-relay and relay-destination pairs take time to setup and also have to undergo beam training. 
+\par Another method is to switch to conventional microwave frequencies when the obstacle appears and later return to \ac{mmWave} bands. Lower frequencies can more easily penetrate through objects thereby eliminating loss due to blockage. Microwave frequencies are typically less directional hence the need for beam alignment is reduced. Shadow fading and doppler spread increases with frequency \cite{shafi2018microwave}. Hence lower frequencies have an advantage of less shadow fading and doppler spread. For scenarios with high mobility which require frequent beam training procedures, switching to microwave frequencies is delay optimal \cite{congiu2016relay}. The above mentioned points indicate that using microwave frequencies as a fallback for \ac{mmWave} link has an advantage over other methods.
+\par The main goal of this thesis is to specify the requirements of a radio fallback system spanning across directional and non-directional wireless channels. I have devised a mechanism for successful determination of the presence of \ac{LOS} link and for switching to microwave frequency in case of blockage. I have done a comparison study of two types of models of this switching mechanism. To extend this algorithm to multiple nodes, I have used this algorithm along with the channel estimation technique. In order to examine the performance of the algorithm, I collect data from the simulations and compare the different approaches on the basis of different metrics.
+ 
+\chapter{Related Work}
+
+In recent years, the research community has been focusing on \ac{mmWave} frequency for communication because of various advantages \cite{hemadeh2017millimeterwave}. Various studies like \cite{hemadeh2017millimeterwave}, \cite{niu2015millimeter}, \cite{wang2018millimeter} etc. related to \ac{mmWave} frequency have been done which provide an insight about the advantages, challenges, channel models, opportunities etc. A major challenge with \ac{mmWave} is the loss of signal due to blockage in \ac{LOS} path. 
+\par One method to avoid attenuation due to blockage is to use a relaying technique in which the source node uses an intermediate node (called relay) to bypass the obstacles \cite{congiu2016relay}. \textcite{congiu2016relay} considers a source node, a destination node and a relay node. The communication link is established between the source and destination node with \ac{mmWave} frequency bands in case of no blockage or by the relay node in case of obstruction in the \ac{LOS} path. However, the source-relay and relay-destination pairs take time to setup and also have to undergo beam training. 
+\par \citeauthor{kong2017autonomous}\cite{kong2017autonomous} propose a novel method, which they termed as AutoRelay, for \ac{mmWave} communication using unmanned autonomous vehicles such as drones and self-driving cars as mobile relays. In the paper \cite{biswas2016performance} the authors investigate the potential benefits of the relay aided \ac{mmWave} networks. The performance in terms of \ac{SNR} improves but the complexity of the network is increased. 
+\par Another method is to switch to conventional microwave frequencies when the obstacle appears and later return to mmWave bands to take advantage of the wide spectrum offered by \acp{mmWave} and avoid losses due to blockages in the \ac{LOS} path. Authors in \cite{wang2016hybrid}, propose such hybrid communication networks in \ac{D2D}. They have designed an improved beam alignment protocol among base stations and \ac{D2D} equipment which helps to select between microwave mode and millimeter wave mode. The hybrid \ac{D2D} communication mode outperforms both the normal \ac{mmWave} and microwave mode in terms of area spectral efficiency and coverage probability.
+\par \textcite{semiari2019integrated} introduces the first comprehensive tutorial for integrated mmWave-microwave communications. It discusses the key concepts like architectures for radio interface, resource allocation methods along with mobility management. An integrated mmWave-microwave wireless network has been proposed which can reap the benefit of multi-RAT (radio access technology) capability. It is also capable of dealing with the intermittent nature of \ac{mmWave} links. The proposed wireless network would lead to the higher complexity of MAC protocols.             
+\par In another study, relay and fallback methods of the \ac{mmWave} communications have been compared based on throughput and delay. \textcite{congiu2016relay} states that for scenarios with high mobility which require frequent beam training procedures, switching to microwave frequencies is delay optimal. The relay option is better when there is heavy traffic and the communication needs higher bandwidth of \ac{mmWave}. 
+\par Switching to microwave frequencies can be done more efficiently based on the \ac{mmWave} channel estimation or by detecting blockages using microwave frequencies. Deep learning models have been used in \cite{alrabeiah2020deep}, \cite{he2018deep} for detecting \ac{LOS} and channel estimation respectively. \citeauthor{alrabeiah2020deep} in \cite{alrabeiah2020deep}, have proven that a sufficiently large neural network can learn mapping functions that predict blockage status of \ac{mmWave} analytically using sub-\SI{6}{\giga\hertz} frequency. In \cite{cheng2019accurate}, the authors have proposed a two-stage channel estimation scheme for \ac{mmWave} \ac{MIMO}. Using sparse Bayesian learning they have obtained a coarse channel estimate and refined it using maximum likelihood estimator. The proposed estimator can almost achieve the upper bound of Cram\'{e}r-Rao Bound.
+\par Implementation of various fallback and relay methods need various channel models and blockage models for simulation of real life environments. Different publications have analysed the performance of millimeter wave communications using various channel models \cite{zhu2011throughput}, \cite{gupta2018impact}, \cite{li2014channel}. Various studies propose different kinds of blockage models which have been used for \ac{mmWave} networks. In \cite{akdeniz2014millimeter}, the author proposes a statistical blockage model, using experimental \ac{mmWave} channel measurements, which accounts for random appearance and disappearance of the blockages. Another publication \cite{shokrighadikolaei2016transitional} proposes a model which addresses an angular correlation between the obstacles in the communication link. The models proposed in both \cite{akdeniz2014millimeter} and \cite{shokrighadikolaei2016transitional} have been used for network throughput analysis and lack delay analysis of a \ac{mmWave} network.
+
+\chapter{Fundamentals} \label{sec:fundamentals}
+In this chapter, I will introduce the concepts which form the basis of this thesis. First, I will explain millimeter waves, their advantages, disadvantages and applications. In Sections \ref{sec:pathloss} and \ref{channelmodel}, I will detail the different types of path losses, channel model and channel estimation techniques.
+
+\section{Millimeter Wave} \label{mmWave}
+The \ac{mmWave} band roughly correspond to \SI{30}{\GHz} to \SI{300}{\GHz}. This huge unlicensed bandwidth available has attracted large research interest. Currently, the available bandwidth for mobile networks (2G, 3G, 4G and LTE-Advanced spectrum) is globally smaller than \SI{780}{\MHz} and each major wireless provider has only a total of about \SI{200}{\MHz} spectrum \cite{rappaport2013millimeter}. This bandwidth is not sufficient for providing rates of \si{\giga\bit\per\second} to multiple devices since a huge per-device spectral efficiency would be required. However, in mmWave bands, there are large chunks of bandwidth available for future mobile networks. \ac{mmWave} communication systems that can achieve multigigabit data rates at a distance of up to a few kilometres already exist for point-to-point communication \cite{pi2011an}.
+\begin{figure}[!ht]%
+    \centering
+    \includegraphics[width=\textwidth]{figures/mmspectrum.pdf}
+    \caption{Millimeter wave spectrum \cite{pi2011an}}
+    \label{fig:spectrum}%
+\end{figure}
+\par \citeauthor{pi2011an} have described the different uses of the 3-300 \si{\giga\hertz} spectrum as shown in Figure \ref{fig:spectrum}. \SI{300}{\mega\hertz}-\SI{3}{\giga\hertz} is used for commercial wireless communications because of its favorable propagation characteristics. Approximately, \SI{252}{\giga\hertz} (denoted in Figure \ref{fig:spectrum} is available within 3-300 \si{\giga\hertz} range for mobile broadband. The frequencies in the range of 57-64 \si{\giga\hertz} can experience an attenuation of upto \SI{15}{\dB\per\km} with maximum attenuation due to oxygen absorption at around \SI{60}{\giga\hertz}. Unlicensed use of the ultra-wideband from 3.1-10.6 \si{\giga\hertz} frequencies has been proposed for enabling high data rates in personal area networks.
+\par Millimeter wave devices enable large antenna arrays to be packed in small dimensions owing to short wavelengths. This can improve signal directivity by reducing co-channel interference and enhance link reliability. Large arrays may enable precoding multiple data streams which could improve spectral efficiency \cite{ayach2014spatially}. The security is also increased since the signal is limited to a small area. The components and antennas of \acp{mmWave} are usually very small hence it is possible to make lightweight equipment. The effect of diffraction decreases with an increase in frequency because objects such as buildings introduce sharp shadows \cite{shafi2018microwave}. 
+\par Meanwhile, \ac{mmWave} communications have few disadvantages \cite{hemadeh2017millimeterwave}. The major disadvantages of \ac{mmWave} are blockage and deafness. The high signal attenuation of \ac{mmWave} due to its inability to propagate through common objects is termed as blockage \cite{rappaport2013millimeter}. Compared to lower frequencies, \acp{mmWave} are more vulnerable to atmospheric attenuation, human shadowing \cite{wang2018millimeter} and are also highly directional \cite{niu2015millimeter}. The misalignment between the main antenna beams of transmitter and receiver causes high signal attenuation which is known as deafness \cite{shokrighadikolaei2015millimeter}. This affects the network capacity. Due to the small size of the antennas, the cost of manufacturing hardware of such great precision increases. Moreover, sharing such links between multiple devices comes with a higher overhead as compared to non-directional technologies \cite{shokrighadikolaei2016spectrum}.
+
+\par \ac{mmWave} technology can be readily used for stationary short distance scenarios. It becomes difficult to handle the mobility of the transmitter or the receiver because of the high directionality of the antennas and the limited range of communication \cite{xiao2017millimeter}. 
+
+\subsection{Applications}
+\par Millimeter waves with frequencies in the license range 71-76, 81-86 and 92 to \SI{95}{\GHz} are usually used for the high bandwidth, point-to-point communication links while the \SI{60}{\GHz} frequency is used for the unlicensed short-range data links such as the Wireless Gigabit (WiGig), based on the standard 802.11ad protocol. \acp{mmWave} are used in communications, imaging, astronomy, medicine \cite{phillips1974millimeterwave} etc. Large bandwidth makes \ac{mmWave} favourable for transmission of \ac{HD} videos. A \ac{mmWave} system is proposed to provide \ac{HD} videos up to 3 Gbs Multimedia QoS characterization was modelled by critical measurements and designed a QoS aware multimedia scheduling scheme to succeed the complexity with the optimum performance \cite{choi2016link}. 
+\par \ac{WiGig} technology enables devices to communicate at high data rates of up to 7 or 8 Gb/sec. The millimeter radars in the 76 to \SI{81}{\GHz} range are widely used in vehicle control and safety devices. The specific applications include sensors for automatic braking, lane intrusion, applications blind spot detection, forward collision detection, cruise control, and more.
+\par \ac{mmWave} communications are used in vehicular networks, virtual reality, satellite communications and 5G. Active and passive imaging systems have been developed in the range from 30-\SI{300}{\GHz}. They can penetrate through poor weather conditions and also see through materials such as cloth, polymers etc. \cite{appleby2007millimeterwave}.
+\par Apart from being used in communications, \acp{mmWave} are used for imaging, tracking and detecting. For example, \acp{mmWave} can be used to explosive detection on personnel since the waves can pass through clothing and are easily reflected by human bodies and concealed objects \cite{sheen2007detection}. These reflected wavefronts can be used for imaging the shape and size of the object.
+
+
+\section{Path Loss} \label{sec:pathloss}
+The data transmitted through any channel is bound to have a few losses. Any channel can experience losses such as \ac{FSPL}, atmospheric attenuations, fading, shadowing, thermal noise etc.
+\subsection{Free Space Path Loss}
+The signal transmitted from the transmitted travels as a light wave in a spherical shape with the transmitter as the centre of the sphere. The receiver receives power from a particular cross-section area of the sphere. The power per unit cross-section area decreases as the distance between the transmitter and receiver increases. This loss is expressed by the free space path loss formula which is derived from the Friis Transmission formula
+\begin{equation}\label{eq:FSPL}
+      FSPL = \left(\frac{4\pi d}{\lambda}\right)^2
+      \end{equation}
+The loss is directly proportional to the distance between the transmitter and receiver \textit{d} and inversely proportional to the wavelength of the signal ${\lambda}$. The \ac{FSPL} increases with frequency and distance. 
+
+\subsection{Atmospheric Attenuation}
+The \ac{FSPL} describes only the part of attenuation which occurs when the signal travels in vacuum. However, in reality, the signals do not travel vacuum; they interact with air and other particles and tend to lose their energy while travelling since the molecules absorb the energy from the signal. The attenuation varies with factors like temperature, pressure, etc. In the Earth's atmosphere, the two major absorbing gases at \ac{mmWave} frequencies are oxygen (O\textsubscript{2}) and water (H\textsubscript{2}O). The sea level at zero-meter altitude is the worst-case scenario for atmospheric attenuation, since at zero-altitude the air density reaches its maximum, while at higher altitudes the air density decreases, which culminates a reduced attenuation. This implies that attenuation is directly proportional to the density.
+\begin{figure}[ht]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/atmosphericattenuation.pdf}
+	\caption{Average atmospheric attenuation of millimeter waves \cite{marcus2005millimeter}}
+	\label{fig:fig_aa}%
+\end{figure}
+\par The atmospheric attenuation due to absorption by O\textsubscript{2} is strongest at \SI{60}{\GHz} as can be seen in Figure \ref{fig:fig_aa} due to an absorption band created by the broadened and overlap of the spectral lines of oxygen from the atmospheric pressure near the ground \cite{marcus2005millimeter}. The attenuation due to oxygen can reach values in the range of \SI{15}{\dB\per\km}, yet it is important to mention that the intensity of attenuation is a function of various factors like temperature, pressure etc.
+
+\subsection{Shadowing} \label{ss:shadowing}
+The \ac{mmWave} frequencies do not propagate well through obstacles, such as furniture, doors, walls and other paraphernalia \cite{pi2011an}. Such obstacles can cause variations in the signal which is known as shadowing or shadow fading. The three basic propagation mechanisms which are affected by the obstacles present in the environment are reflection, diffraction and scattering. The transmission scenario can provide information about the shadowing component in the environment. The small wavelength of the \acp{mmWave} makes it prone to scattering. 
+\par Reflection occurs when the signal impinges upon an object which has very large dimensions when compared to the wavelength of the propagating signal. Reflection occurs from the surface of the earth, buildings and walls.
+\par Diffraction occurs when the path between the transmitter and the receiver has objects with sharp edges or irregularities. At higher frequencies, diffraction depends on the geometry of the object as well as the amplitude, polarization and phase of the incident wave at the point of diffraction.
+\par Scattering is a general physical process where the signal deviates from the straight trajectory by one or more paths. It occurs when the environment has objects which are smaller than the wavelength of the signal being transmitted. Scattered waves are produced by rough surfaces and small objects.
+
+\subsection{Fading} \label{ss:fading}
+In wireless communications, fading is the deviation of the power of the electromagnetic signal from the average value caused by obstacles which affect wave propagation. Figure \ref{fig:fading} gives a classification of the various types of fading in wireless communication channels. There are two different types of fading: large scale fading and small scale fading. Small scale fading is caused by interference between two or more waves of the transmitted signal which arrive at the receiver at slightly different times. These waves, called multipath waves, interfere at the receiver to give the resultant received signal. Small scale fading is often handled with diversity schemes. Large scale fading is dependent on the location concerning obstacles. It is affected by prominent terrain contours like mountains, forests, buildings etc. between the transmitter and the receiver \cite{sklar1997rayleigh}. The statistics of large scale fading provide a way of computing path loss as a function of distance.
+\begin{figure}[h]%
+    \centering
+    \includegraphics[width=\textwidth]{figures/Fading.pdf}
+    \caption{Types of fading in wireless communication channels}
+    \label{fig:fading}%
+\end{figure}
+\par Small scale fading can be divided into two types: multipath delay spread and doppler spread. Multipath delay spread is the difference in arrival between the first component and the latest multipath component. Doppler spread is the widening of the spectrum of a narrowband signal due to the relative motion between the transmitter and the receiver \cite{sklar1997rayleigh}. Large scale fading can also be divided into two types: path loss and shadowing. These have been discussed in Section \ref{sec:pathloss}.
+\par Fast fading refers to the swift fluctuations in the amplitude, phase or multipath delays of the received signal, due to the interference between the multiple versions of the same transmitted signal arriving at the receiver at a slightly different time interval. Slow fading occurs when objects that partially absorb the energy of the transmission signal between the transmitter and the receiver. In this thesis, slow fading is considered, i.e. the channel coherence time exceeds the observation time. 
+
+\section{Channel Model} \label{channelmodel}
+\par Before the actual implementation of hybrid communication or fallback mechanism for \ac{mmWave}, it is necessary to study the propagation characteristics of \ac{mmWave} using channel models. There are numerous works available on millimeter wave channel models. For example, \cite{weiler2016quasi-deterministic} introduces a quasi-deterministic channel model with a focus on millimeter wave outdoor access channels. The authors of \cite{wang2015millimeter} propose a channel model based on \ac{3GPP} spatial channel model framework. This model meets the requirements of beam-tracking evaluation while keeping spatial consistency. There are also other physical channel models like two ray fading model \cite{romerojerez2016fluctuating}, Saleh Valenzuela model \cite{meijerink2014on} which are based on the physical channel parameters like path loss, fading etc. 
+\par A channel model is an important piece of physical layer communication simulation. It is the radio propagation model which determines the characteristics of any communication system. The channel model can be the impulse response of the channel in the time domain or its Fourier transform in the frequency domain.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/Channelmodelclassification.pdf}
+    \caption{Channel model classification \cite{hemadeh2017millimeterwave}}
+    \label{fig:fig_chmodel}
+\end{figure}
+\par Channel models are generally classified into two categories as shown in Figure \ref{fig:fig_chmodel}. A physical channel model is constructed based on the electromagnetic characteristics of the signal propagating between the transmit and receive antenna arrays, while an analytical channel model is described based on the mathematical analysis of the channel \cite{hemadeh2017millimeterwave}.
+\par A physical channel model is further classified as deterministic and stochastic model. The deterministic channel model is recognized to be very accurate in predicting channel characteristics but have high computation and modelling complexity \cite{hemadeh2017millimeterwave}. Such models are used when the propagation environment is known. On the other hand, the stochastic channel models are based on measurements done in different scenarios. \ac{PDF} is used to represent channel parameters and then fading components are calculated. These are not environment specific \cite{hemadeh2017millimeterwave}.
+
+\section{Channel Estimation} \label{sec:chestimation}
+As described in Section \ref{sec:pathloss}, the signal undergoes attenuation when passing through a channel. The received signal can be decoded properly without much errors by removing the distortions added by the channel. This can be done when the characteristics of the channel are known. The process/technique to characterize the channel is called channel estimation. Channel estimation can be carried out in different ways: with or without the help of a parametric model, using frequency and/or time correlation properties in the wireless channel, blind methods or those based on training pilots, adaptive or non-adaptive methods. 
+There are mainly two types of channel estimators: \ac{LS} and \ac{MMSE}. The \ac{LS} or \ac{LMMSE} is used as a reference model \cite{edfors1996ofdm}. The \ac{LS} estimation is the simplest channel estimation based on parallel Gaussian channel model in frequency domain. \ac{LS} does not use any prior information so the performance is worse than \ac{LMMSE} whereas the \ac{LMMSE} uses the channel covariance matrix and \ac{SNR} for better performance \cite{yang2008local}.
+\par \ac{DFT} based channel estimation technique can be used to further improve the performance of \ac{LS} and \ac{MMSE} estimators by eliminating the effect of noise outside the maximum channel delay \cite{cho2010mimo}. Mathematically, this can be described using Equations \ref{eq:idft1} and \ref{eq:idft2} \cite{cho2010mimo}.
+\begin{equation} \label{eq:idft1}
+    IDFT\{\hat{H}[k]\} = h(n) + z(n) \triangleq \hat{h}[n],\ \, n=0,1....,N-1
+\end{equation}
+where \^{H}[k] is the channel estimate and z[n] denotes the noise component in time domain.
+Ignoring the coefficients of \^h[n] that contain noise only, the equation can be rewritten as:
+\begin{equation} \label{eq:idft2}
+    \hat{h}\textsubscript{DFT}[n] = 
+    \begin{cases}
+              h[n] + z[n]& n=0,1,....,L-1      \\
+              0& \text{otherwise}
+    \end{cases}
+\end{equation}
+where L is the maximum channel delay.
+The remaining L elements are transformed back to frequency domain.
+\begin{equation} \label{eq:dft}
+    \hat{H}\textsubscript{DFT}[k] = DFT\{\hat{h}\textsubscript{DFT}(n)\}
+\end{equation}
+\par \ac{OFDM}, a type of multi-carrier system, can be used along with channel estimation for better data rates and higher spectral efficiencies. Each subcarrier in \ac{OFDM} can be regarded as an independent channel (as long as no inter-channel interference occurs). The orthogonality allows each subcarrier component of the received signal to be expressed as the product of the transmitted signal and channel frequency response at the subcarrier. Thus, the transmitted signal can be recovered by estimating the channel response just at each subcarrier. In general, the channel can be estimated by using pilot symbols known to both transmitter and receiver, which employ various interpolation techniques (e.g., linear or spline interpolation) to estimate the channel response of the subcarriers between pilot tones \cite{cho2010mimo}.
+
+\chapter{Methodology}
+
+Based on the concepts explained in Chapter \ref{sec:fundamentals}, I will explain how the system has been implemented in \MATLAB{} and reasons for using the particular components in the system. I will also describe the fallback mechanism implemented and the blockage model considered in the implementation.
+
+\section{System Model}
+In this implementation, a deterministic channel model is used with constant attenuation at a distance of \SI{1}{\metre} and distance-dependent attenuation. A constant loss due to any obstacle in the path is also considered. The channel model which I have implemented is a fading channel with \ac{AWGN}. I have considered a Rician fading channel with three discrete paths. A \ac{SISO} system is implemented initially. A high level diagram of the system model is shown in Figure \ref{fig:systemmodel}. The implemented model consists of \ac{QPSK} modulator and \ac{RRC} transmit filter on the transmitter side and \ac{QPSK} demodulator and \ac{RRC} receive filter on the receiver end.
+\begin{figure}[ht]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/Flow.pdf}
+	\caption{System Model which shows the transmitter consisting of the modulator and the \ac{RRC} transmit filter. The channel is a Rician fading channel. On the receiver side, the two blocks are the \ac{RRC} receive filter and the demodulator.}
+	\label{fig:systemmodel}%
+\end{figure}
+\par In wireless communications, there are two conflicting requirements: demand for higher data rates and narrower bandwidth (more users, more channels and less noise). If the channels are too narrow, at sampling points in time there will be an overlap of symbols. One possible solution to this is the use of an ideal low pass filter. An implementation of the low-pass Nyquist filter is \ac{RRC} filter. It is used for pulse-shaping and minimising the effect of jitter. The filter is split into two parts to further improve the noise cancellation. 
+\begin{equation}
+    H\textsubscript{rc} (\omega) = H\textsubscript{rrc,tx}(\omega)H\textsubscript{rrc,rx}(\omega)
+\end{equation}
+\ac{RRC} filter equation in frequency domain is given by 
+\begin{equation}
+    H(f) =
+    \begin{cases}
+                    1& \text{$|f| \leq \frac{1-\beta}{2T}$}    \\
+                    \frac{1}{2} \left[1+\cos\left(\frac{\pi T}{\beta}\left[|f| - \frac{1-\beta}{2T}\right]\right)\right] &\text{$\frac{1-\beta}{2T} \leq |f| \leq \frac{1+\beta}{2T}$}   \\
+                    0&\text{otherwise}
+     \end{cases}
+\end{equation}
+
+\par The baseband signals are incompatible for direct transmissions hence there is a need for modulation. The various modulation schemes were simulated for the current implementation considering Rician fading. The \ac{BER} vs \ac{SNR} graph for each modulation scheme was plotted along with the theoretical values. As seen in Figure \ref{fig:modschemes}, \ac{QPSK} modulation has the lowest \ac{BER} as compared to other modulation schemes. \ac{BPSK} has comparable \ac{BER} values for \ac{SNR} values (Eb/No) but the bandwidth of \ac{QPSK} is twice as efficient as \ac{BPSK}. Hence, \ac{QPSK} modulation is used in the final implementation.
+\begin{figure}[ht]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/modsch.pdf}
+	\caption{Comparison of modulation schemes for Rician fading channel with \ac{AWGN}}
+	\label{fig:modschemes}%
+\end{figure}
+\par The channel consists of a blockage model, a multipath fading channel and an \ac{AWGN} channel. In the next two Subsections \ref{ss:blockagemodel} and \ref{ss:algo}, I have described the fallback mechanism and the blockage model in detail. 
+\par Further improvements in the radio fallback mechanism of the \ac{mmWave} can be done using channel estimation techniques. The system implemented for channel estimation is a \ac{MIMO} \ac{OFDM} system having two transmit and two receive antennas. A high level block diagram of the \ac{MIMO} \ac{OFDM} system is shown in Figure \ref{fig:mimoofdm}.
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/mimoofdm.pdf}
+	\caption{High level block diagram of \ac{MIMO} \ac{OFDM} system \cite{niranjane2011performance}}
+	\label{fig:mimoofdm}%
+\end{figure}
+\par In an \ac{OFDM} system, the modulated data is converted to parallel data streams. Pilot symbols are inserted. This data along with pilot symbols undergoes \ac{IFFT} to convert them into time-domain signals. Guard symbols are inserted after \ac{IFFT} to reduce \ac{ISI}. The parallel signals are converted to serial again before transmitting it through the channel. On the receiver side, the serial data is again converted to parallel. The guard symbols are removed and a \ac{FFT} is performed. Channel estimation is done and before demodulation, the parallel data is converted back to serial data.
+\par I have used this \ac{OFDM} \ac{MIMO} system for extending the system to multiple nodes. Channel estimation technique is used to determine the state of links between the transmitter and the receiver. A system having one transmitter and five receivers is implemented. It is possible to have \ac{LOS} in other receivers in case it is blocked for one (as shown in Figure \ref{fig:est_system}). 
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[scale=0.7]{figures/estimationsetup.pdf}
+	\caption{System model with single transmitter and five receivers. It is possible to have \ac{LOS} between other links when one the link is blocked. An example of the same is depicted.}
+	\label{fig:est_system}%
+\end{figure}
+\par The links between the transmitter and each receiver are treated as a separate channels having same channel characteristics. Channel estimation is performed for each link to check for the presence of direct communication link. This helps in reducing the latency as the \ac{LOS} check is not done before transmitting each packet as in the case of single transmitter and single receiver.
+
+\subsection{Blockage Model} \label{ss:blockagemodel}
+\par It is difficult to model mobility of blockages in \MATLAB{}. Hence, an abstraction of the blockages is used \cite{congiu2016relay}. The channel is modelled as a queue system where the presence of a message in the queue denotes obstruction in the direct path whereas an empty queue implies availability of \ac{LOS} path. The messages do not refer to the real messages but only to the blockage occurrences. The busy period of the server is the time for which the direct path between the transmitter and receiver is blocked. The blockage model adds randomness to the appearance and disappearance of the obstruction in the communication link. The maximum queue length has been fixed to 10 i.e., more than 10 obstacles are not possible in the direct path between the transmitter and receiver. The arrival and departure rates follow a Poisson distribution. This can be easily extended to other types of distributions. There is no time correlation between the appearance and disappearance of the obstacles in the communication link.
+
+\subsection{Fallback Mechanism} \label{ss:algo}
+There are two fallback mechanisms implemented in this thesis. The first mechanism is used for single transmitter and receiver and the second mechanism is used for multiple nodes. The first mechanism uses a switching algorithm to check for the presence of \ac{LOS} path between the transmitter and the receiver. It is a two-step check which is done before transmitting each packet. The first step is to send a test signal in the millimeter range frequency to the receiver. The received power is measured and compared with the fixed threshold (P\textsubscript{threshold}). If the power received exceeds the P\textsubscript{threshold} then the second check is done. In case of power received being less than the P\textsubscript{threshold}, the packet is transmitted using microwave frequency. Figure \ref{fig:algorithm} shows a flowchart with the different steps of the algorithm.
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/Algorithm.pdf}
+	\caption{Algorithm used for switching between frequencies when an obstacle is present in the \ac{LOS} path between the transmitter and the receiver}
+	\label{fig:algorithm}%
+\end{figure}
+\par For the second check, the ratio of highest signal strength component to average received signal energy is measured. This ratio is also compared to a fixed threshold (R\textsubscript{threshold}). If the ratio is greater than the R\textsubscript{threshold}, the packet is transmitted using \ac{mmWave} frequency else microwave frequency is used. This ratio of highest signal strength to average received signal energy is used because strong multipath spreads the incidence energy over a wide range of the angular receive profile and thus increases the denominator of the fraction. A direct path on the other hand results in a sharp peak at its incidence angle and increases the ratio. As the direct path peak loses magnitude by the blockage, the numerator of the ratio shrinks while the average energy received through reflections remains. 
+\par An assumption is made that the \ac{mmWave} has only two states \ac{LOS} and \ac{nLOS}. It is also assumed that there are zero outages in the microwave link. Each obstacle in the communication link increases the attenuation of the signal. As the number of obstacles increases, the signal attenuation increases. Shadowing and fading (as explained in Subsections \ref{ss:shadowing} and \ref{ss:fading}) are the major reasons for the attenuations due to obstacles. The second fallback mechanism uses channel estimation technique to estimate the channel between the transmitter and the receivers. The transmitter checks for the presence of \ac{LOS} with all the available nodes using channel estimation. If the direct path between a particular node and the transmitter is blocked, the link switches to microwave frequency for transmission. All the other nodes having no blockage in the link can transmit using millimeter wave frequency.
+
+\chapter{Evaluation}
+This chapter provides the implementation details and the analysis of the fallback mechanism implemented. I also describe the results I obtained and the effects observed. 
+
+\section{Simulation Setup}
+\par In order to evaluate the performance of the fallback mechanisms, I observe their behaviour in simulations. A simple simulation scenario is designed which can be applied to fault-tolerant \ac{mmWave} as well as microwave link and simple \ac{mmWave} link. The simulations have been run in \MATLAB{}2020a. 
+\par For the first setup, two \ac{SISO} nodes are considered: one of them is a transmitter and the other is a receiver. The distance between the transmitter and the receiver varies from \SI{10}{\metre} to \SI{100}{\metre} with intervals of \SI{10}{\metre} each. Both the transmitter and the receiver are considered to be stationary at all times contributing to the doppler shift being zero. As stated in \cite{daniels2007wireless} loss due to atmospheric attenuations can account for 7-15.5 \si{\dB\per\km} power loss. Hence, an indoor scenario has been considered assuming constant atmospheric attenuation. Randomly generated data is used as input for the system. A total of 1000 packets are transmitted for each simulation run. 100 repetitions are done for each simulation. I have used \SI{73}{\giga\hertz} frequency for \ac{mmWave} communication and a frequency of \SI{2.9}{\giga\hertz} for microwave communication.  
+\par After fixing the scenario, the next important step is to have a channel model based on Section \ref{channelmodel}. I have used the built-in functions of Communications Toolbox of \MATLAB{} for Rician fading channel. The specifications for the Rician channel have been described in Table \ref{tab:rician}. The Rician K-factor is set as 3 which implies that the first discrete path is Rician fading process and the other two are independent Rayleigh fading processes. 
+\begin{table}
+\centering
+        \begin{tabular}{c c}
+        \hline
+           Parameters & Values \\ [0.5ex]
+            \hline
+             Sample Rate & \num{1e5} \\
+             Path Delays & \num{1e-9} to \num{1e-6} \\
+             Average Path Gains & -20 to 0 \\
+             K-factor & 3 \\ [0.5ex]
+             \hline
+        \end{tabular}
+        \caption{Specifications of Rician Fading Channel}
+        \label{tab:rician}
+\end{table}
+\par The blockage model is implemented using M|M|$\infty$ multi-server queuing model. This ensures that there is no correlation between the obstacles. Along with the multipath fading and blockage model, \ac{AWGN} is also considered for the channel. For the channel, the received signal (in complex baseband form) can be written as 
+\begin{equation}
+    y(t) = h(t)*x(t) + n(t)
+\end{equation}
+where,
+\begin{itemize}
+    \item y(t) is the received signal
+    \item h(t) is the channel impulse response
+    \item x(t) is the transmitted signal
+    \item n(t) is the noise (\ac{AWGN})
+\end{itemize}
+\par The convolution is given by the integral in Equation \ref{eq:convolution}
+\begin{equation} \label{eq:convolution}
+ y(t)=\int\limits_{-\infty}^{\infty}x(\tau)h(t-\tau)d\tau +n(\tau)
+\end{equation}
+where $\tau$ is the propagation delay.
+h(t) is replaced by the impulse responses of the multipath fading channels. These impulse responses can be derived from the probability density functions. The \ac{PDF} of Rician channel is given by Equation \ref{eq:Ricianpdf} \cite{tkac2012calculation}
+\begin{equation} \label{eq:Ricianpdf}
+    pdf(r)=r\frac{r}{ \sigma^{2}}e^{ \frac{r^{2}+A^{2}} {2\sigma^{2}}}I_{0}\left ( \frac{r\cdot A} {\sigma^{2}}\right),\ \, r\geq 0
+\end{equation}
+\par \emph{A} denotes the peak amplitude of the dominant signal, \emph{r} denotes the amplitude of the received signal envelope, $\sigma$ is the \ac{rms} value of the received signal voltage. \emph{I}\textsubscript{0}(\text{*}) is the modified Bessel function of the first kind and zero-order. \emph{K} which is called the Rician factor is given by 
+\begin{equation}
+    K[dB]=10\cdot\log \left (\frac{A^{2}} {2\sigma^{2}} \right)
+\end{equation}
+\par If there is no \ac{LOS}, implies \emph{A} is zero. Equating \emph{A} to zero in Equation \ref{eq:Ricianpdf}, Equation \ref{eq:Rayleighpdf} is obtained which is the \ac{PDF} of Rayleigh fading channel.
+\begin{equation} \label{eq:Rayleighpdf}
+    pdf(r)=\frac{r}{ \sigma^{2}}e^{\frac{r^{2}} {2\sigma^ {2}}},\ \, r \geq 0
+\end{equation}
+The complex envelope for both Rician and Rayleigh can be given by h = I + jQ. Here, the channel coherence time exceeds the observation time hence slow fading is considered. This implies that the channel response remains constant for all transmitted signal x(t). The impulse response is given by 
+\begin{equation}
+h = P\textsubscript{\ac{LOS}} + \frac{1}{\sqrt{2d^\alpha}} * (randn(1,1)+1j*randn(1,1)) 
+\end{equation}
+where 
+\begin{itemize}
+    \item $\alpha$ is the loss exponent 
+    \item d is the distance between the transmitter and the receiver
+    \item P\textsubscript{\ac{LOS}} is the power of the direct \ac{LOS} path
+\end{itemize}
+When P\textsubscript{\ac{LOS}} is zero, we get
+\begin{equation}
+    h = \frac{1}{\sqrt{2d^\alpha}} * (randn(1,1)+1j*randn(1,1)) 
+\end{equation}
+
+\par The transmitted signal after modulation is given as
+\begin{equation}
+    x(t) = Re\{x(t)e^{j(2\pi f\textsubscript{c}t)}\}
+\end{equation}
+where  f\textsubscript{c} is the carrier frequency. Depending on the switching algorithm, it is set as \ac{mmWave} or microwave. The received signal consists of scaled and delayed versions of the transmitted signal.
+\par Pulse shaping is applied by interpolating the signal using a raised cosine filter. The built-in functions \emph{RaisedCosineTransmitFilter} and \emph{RaisedCosineReceiveFilter} of \MATLAB{} are used for the same. The filter shape is defined as a square root. The number of symbols the filter spans is defined as 10. The ideal raised cosine filter has an infinite impulse response so the impulse response is truncated to the value specified in \emph{FilterSpanInSymbols}. The raised cosine filter has unit energy and applies the linear gain to obtain final tap values. The number of taps of the filter is given by Equation \ref{eq:taps}. The specifications of the filter are mentioned in Table \ref{tab:rrc}.
+\begin{equation} \label{eq:taps}
+    Taps = (\emph{FilterSpanInSymbols} * \emph{OutputSamplesPerSymbol}) + 1
+\end{equation}
+The roll-off factor is a measure of the excess bandwidth of the filter, i.e., the bandwidth occupied beyond the Nyquist bandwidth of 1/2T, where 1/T is the symbol rate. Hence, the roll-off factor should be small for bandwidth efficiency.
+\begin{table}[h]
+\centering
+        \begin{tabular}{c c}
+        \hline
+           Parameters & Values \\ [0.5ex]
+            \hline
+             Roll-off factor & 0.5 \\
+             \emph{FilterSpanInSymbols} & 10 \\
+             \emph{OutputSamplesPerSymbol} & 8 \\
+             Gain & 1 \\ [0.5ex]
+             \hline
+        \end{tabular}
+        \caption{Specifications of Root Raised Cosine Filter}
+        \label{tab:rrc}
+\end{table}
+\par For the second setup with multiple nodes, same channel model is considered for each link. The links between the transmitter and the receivers are treated independently i.e., the obstacle in one link does not necessarily imply that the neighbouring link is also blocked. An \ac{OFDM} 2X2 \ac{MIMO} system is used for each link. 
+\section{Results}
+I have implemented two cases when switching from \ac{mmWave} to microwave frequencies. 
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[scale=0.7]{figures/oldmodel.pdf}
+	\caption{Case 1 (Old model): Carrier frequency is generated based on the switching algorithm. There is no permanent communication link between transmitter and receiver.}
+	\label{fig:oldmodel}%
+\end{figure}
+   \begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/permanentmicrowavelink.pdf}
+	\caption{Case 2: A permanent microwave link is present between the transmitter and the receiver.}
+	\label{fig:chmicrowave}%
+\end{figure}
+\begin{itemize}
+    \item Case 1: The carrier frequency is generated depending on the decision of the switching algorithm and then the transmission takes place. This case has been referred to as 'Old Model' further in the thesis. This model is shown in Figure \ref{fig:oldmodel}.
+    
+    \item Case 2: A permanent microwave link is available and the generation of the carrier frequency is not required each time. If the direct path is not available, the transmission switches to the permanent microwave link. This model is shown in Figure \ref{fig:chmicrowave}.
+ 
+\end{itemize}
+\par I have done a comparison study between the two cases based on the worst-case \emph{switching time} and the channel usage. \emph{Switching time} is defined as the period starting from the instant when the test signal is sent to the receiver when checking for \ac{LOS} availability to the instant when the actual transmission starts.
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/Time.pdf}
+	\caption{Comparison of worst case switching time}
+	\label{fig:time}%
+\end{figure}
+\par Figure \ref{fig:time} shows a comparison based on the worst-case \emph{switching time} of both the cases. I have executed a total of 100 simulation runs for both the cases and recorded the worst value of the \emph{switching time}. Since the values of time were really small, I have used a log scale to make the graph more readable. Case 2 i.e., the model with permanent microwave link performs better in almost 90\% of the cases. It is interesting to note that there are a few peaks in the graph. These peaks correspond to those cases where the switching algorithm has to wait until the results of the second step of \ac{LOS} path check are completed. These simulations take more time to switch to the desired frequency before beginning the transmissions.
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/ChannelUsage.pdf}
+	\caption{Comparison of channel usage for the two models implemented}
+	\label{fig:channelusage}%
+\end{figure}
+\par I have also compared the two cases on based on the channel used during the simulation runs. Percentage of channel usage for both cases have been plotted. Figure \ref{fig:channelusage} shows that the model with permanent microwave link uses the microwave link for the whole duration of simulation i.e., 100\% usage. Although the microwave link is not being used for the entire duration, it still has to be kept available for use. This is disadvantageous for other users who try to access the microwave channel for other use.
+
+\par Both cases have their advantages and disadvantages. When using \ac{mmWave} higher data rates and faster transmissions are important factors. Hence, the second model has been used further in the thesis because of its better performance in terms of \emph{switching time}.
+\par The evaluation of the proposed scheduling algorithm is done by comparing the fault tolerant version of \ac{mmWave} with the non fault-tolerant version. This comparison is done based on mean throughput and maximum end-to-end latency. Figures \ref{fig:throughput} and \ref{fig:latency} show the two comparisons respectively.
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/tp.pdf}
+	\caption{Comparison of mean throughput for fault-tolerant \ac{mmWave}, \ac{mmWave} and microwave. The plot includes 95\% confidence intervals for the mean values over all runs.}
+	\label{fig:throughput}%
+\end{figure}
+
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/Latency.pdf}
+	\caption{Comparison of maximum end-to-end latency of fault tolerant \ac{mmWave} and \ac{mmWave}. The plot includes 95\% confidence intervals for the mean values over all runs.}
+	\label{fig:latency}%
+\end{figure}
+\par The plot in Figure \ref{fig:throughput} shows that the fault-tolerant \ac{mmWave} has the best mean throughput as compared to microwave and simple \ac{mmWave} links. In case of blocked \ac{LOS}, the simple \ac{mmWave} has zero transmission whereas the fault-tolerant \ac{mmWave} can switch to microwave and continue transmitting and does not waste time. The bandwidth is decreased since when the transmission is switched to microwave frequency. The \emph{switching time} is quite small as compared to the transmission time and hence does not have a major affect on the throughput. The transmission done only using microwave link has less attenuation due to blockages as compared to the \ac{mmWave}. It has the least throughput because of lesser bandwidth.
+
+\par Figure \ref{fig:latency} compares the maximum end-to-end latency of the fault-tolerant \ac{mmWave} with that of \ac{mmWave}. The end-to-end latency has been plotted against the \emph{blocked time}. \emph{Blocked time} is the total time when the \ac{LOS} is blocked. The maximum latency of the \ac{mmWave} increases as the blocked time increases because the transmitted packet is lost when there is an obstacle in the direct path. A successful transmission can only take place when there is \ac{LOS} between the transmitter and the receiver. In the case of fault-tolerant \ac{mmWave} the blocked time does not have a major negative impact on the latency. The time taken to switch to microwave frequency gets added to the latency but it is very small compared to the total blocked time. Hence, the fault-tolerant \ac{mmWave} has much smaller end-to-end latency. 
+
+\subsection{Channel Estimation}
+\par A further extension was the system was implemented using \ac{OFDM} \ac{MIMO} system. Channel estimation can be done using \ac{LS} estimator or \ac{MMSE}. Both the estimators were simulated to decide which performed better in terms of \ac{BER}. A comparison was done by plotting \ac{BER} vs \ac{SNR} graph which is shown in Figure \ref{fig:lsmmse}. From the plot, we can see that the \ac{MMSE} estimator has a better performance. \ac{MMSE} has a higher complexity but has lower \ac{BER} values for higher \ac{SNR}.
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/lsmmse.pdf}
+	\caption{Comparison between \ac{LS} and \ac{MMSE} estimators on the basis of \ac{BER} vs \ac{SNR}}
+	\label{fig:lsmmse}%
+\end{figure}
+\par Comparison of estimated channel with true channel is a good metric for determining the performance of estimators. The pilot sub-carriers must be interpolated for estimating the channel for data symbols. Two types of interpolations are used with \ac{LS} and \ac{MMSE} estimators. These are linear and spline interpolations. \ac{DFT} technique as mentioned in Section \ref{sec:chestimation} is also applied to improve the performance of the estimators. A comparison of the following estimators is done by plotting the power of the channel vs the subcarrier index of the channel \cite{cho2010mimo}. 
+\begin{itemize}
+    \item \ac{LS} estimator 
+    \begin{itemize}
+        \item Linear interpolation with and without \ac{DFT}
+        \item Spline interpolation with and without \ac{DFT}
+        \end{itemize}
+    \item \ac{MMSE} estimator with and without \ac{DFT}
+\end{itemize}
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[scale=0.7]{figures/LSlinear.pdf}
+	\caption{Comparison of linear interpolation \ac{LS} estimator (a) without \ac{DFT} and (b) with \ac{DFT} \cite{cho2010mimo}}
+	\label{fig:lscomparison}%
+\end{figure}
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[scale=0.7]{figures/LSspline.pdf}
+	\caption{Comparison of spline interpolation \ac{LS} estimator (a) without \ac{DFT} and (b) with \ac{DFT} \cite{cho2010mimo}}
+	\label{fig:lssplinecomparison}%
+\end{figure}
+\par Figure \ref{fig:lscomparison} shows a comparison between linear interpolation \ac{LS} estimator with and without \ac{DFT}. The \ac{LS} estimator with \ac{DFT} gives a good estimate of the power of the true channel with little variations. The \ac{LS} estimator without \ac{DFT} also accounts for the noise outside the maximum delay of the channel and hence has major deviations from the true channel.
+
+
+\par Figure \ref{fig:lssplinecomparison} shows a comparison between spline interpolation \ac{LS} estimator with and without \ac{DFT} technique. A similar behaviour is seen for \ac{LS} estimator using spline interpolation. Estimator with \ac{DFT} performs better in the case of spline interpolation. 
+\newpage Figure \ref{fig:mmsecomparison} shows \ac{MMSE} estimators with and without \ac{DFT} technique. The \ac{MMSE} estimators show a better performance as compared to \ac{LS} estimators. Although \ac{MMSE} estimators have a higher complexity, they give a better estimate of the channel.
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[scale=0.7]{figures/MMSE.pdf}
+	\caption{Comparison of \ac{MMSE} estimator (a) without \ac{DFT} and (b) with \ac{DFT} \cite{cho2010mimo}}
+	\label{fig:mmsecomparison}%
+\end{figure}
+
+\begin{figure}[!h]%
+	\centering
+	\includegraphics[width=\textwidth]{figures/L_est.pdf}
+	\caption{Comparison of maximum end-to-end latency of fault-tolerant millimeter wave with and without channel estimation technique. The plot includes 99\% confidence interval over all simulation runs.}
+	\label{fig:est_latency}%
+\end{figure}
+
+
+\par Using \ac{MMSE} estimator, the channel estimate was calculated between the transmitter and the receivers. For comparing the results of channel estimation based switching with the previously implemented switching algorithm, I have used the metric end-to-end latency. Figure \ref{fig:est_latency} shows a comparison between fault-tolerant \ac{mmWave} and fault-tolerant \ac{mmWave} with channel estimation. The maximum end-to-end latency for the fallback mechanism with channel estimation is lower than that for fault tolerant \ac{mmWave}.The reason for the improvement is that with channel estimation the \ac{LOS} check is not done after transmitting each packet. This reduces the delay which is introduced because of the two-step check done for confirming \ac{LOS}. Introducing channel estimation and \ac{OFDM} increases the complexity of the system, but  it helps in exploiting the time and frequency correlation of the channel. This in turn reduces the latency and thereby improving the fallback mechanism of the \ac{mmWave}.
+
+ 
+
+\chapter{Conclusion}
+In this thesis, I have proposed a radio fallback mechanism for \ac{mmWave} link. For this purpose, I have devised a switching algorithm to be used when switching from \ac{mmWave} to a microwave frequency. I have used this algorithm in two cases and analysed the results from both the cases. Additionally, I have used a channel estimation technique to extend the radio fallback mechanism for multiple receivers. To analyse the various mechanisms, I ran simulations to record parameters which help in identifying the advantages and disadvantages of the mechanisms.
+\par The results show that \ac{mmWave} with radio fallback can provide better throughput as compared to the non fault tolerant \ac{mmWave}. In case of blocked \ac{LOS} path, fault-tolerant \ac{mmWave} has less end-to-end latency as compared to simple \ac{mmWave}. The switching algorithm was implemented for two cases. The results show that both cases have their advantages and disadvantages. The model with permanent microwave link performs well in terms of time whereas the other model has a better channel utilisation. When the system is extended for multiple receivers, fault tolerant \ac{mmWave} with channel estimation proved to be better in terms of latency as compared to the fault tolerant \ac{mmWave} with only switching mechanism. These results indicate that millimeter wave with radio fallback is better (in terms of latency and throughput) than \ac{mmWave}. 
+
+\newpage \section{Future Work}
+Although the results of this thesis show evident advantages, it is possible to further improve the fallback mechanism. Piggybacking can be used to further reduce latency. Piggybacking would also aid preemptive scheduling of the microwave link instead of having a permanent link. Furthermore, the channel estimation technique used in this thesis employs 2X2 \ac{MIMO} system. It would be interesting to see if having more than 2 transmitter and receiver antennas would further improve the system.
+\par The simple algorithm I have used in the implementation already shows promising results. Based on these, more sophisticated algorithms can be developed, such as e.g., adaptive thresholding. The current algorithm uses hard thresholds for determining the state of \ac{LOS} link. This algorithm can be further improved so that it can be used with all kinds of channel models without having to change the thresholds. 
+
+
+\cleardoublepage
+
+\listofabbreviations
+\clearpage
+
+\listoffigures
+\clearpage
+
+\listoftables
+\clearpage
+
+\printbibliography
+
+\end{document}

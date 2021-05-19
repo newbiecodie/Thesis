@@ -1,0 +1,109 @@
+\documentclass[]{ccs-proposal}
+% options:
+% [germanthesis] - Thesis is written in German
+% [plainunnumbered] - Don't print numbers on plain pages
+% [earlydraft] - Settings for quick draft printouts
+% [watermark] - Print current time/date at bottom of each page
+% [twoside] - double sided
+% [cutmargins] - text body fills complete page
+
+% Choose one of the following lines.
+%\group{Cooperative Mobile Systems}
+\group{Distributed Embedded Systems}
+
+% Author name. Separate multiple authors with commas.
+\author{Harshita}
+\birthday{03 October 1994}
+\birthplace{Lucknow, India}
+
+% Title of your thesis.
+\title{Provisioning radio fallback for directional wireless channels}
+
+% Choose one of the following lines. Feel free to change the word "Informatik" to match your degree program.
+\thesistype{Master's Thesis in Computer Engineering}\thesiscite{Master's Thesis~(Masterarbeit)}
+%\thesistype{Bachelor Thesis in Computer Science}\thesiscite{Bachelor Thesis~(Bachelorarbeit)}
+%\thesistype{Seminar Thesis in Computer Science}\thesiscite{Seminar Thesis~(Seminararbeit)}
+
+% List of advisors (if applicable), separated by commas.
+\advisors{Max Schettler, Muhammad Sohaib Amjad}
+
+% List of referees, separated by commas.
+\referees{Falko Dressler, Christian Scheideler}
+
+% Define abbreviations used in the thesis here.
+\acrodef{mmWave}{Millimeter Wave}
+\acrodef{MIMO}{Multiple Input Multiple Output}
+\acrodef{LOS}{Line Of Sight}
+\acrodef{SINR}{Signal-to-Interference-plus-Noise}
+\acrodef{ARQ}{Automatic Repeat Request}
+\acrodef{FEC}{Forward Error Correction}
+
+\begin{document}
+\maketitle
+\section{Introduction \& Motivation}
+Emergence of various applications like mobile internet, virtual reality etc., and increase in the amount of mobile data traffic has led to the demand for more bandwidth and higher data rates of wireless networks \cite{rappaport2011state}. Exploiting the enormous spectrum of the \ac{mmWave} bands can greatly increase the communication capacities \cite{wang2018millimeter}. Millimeter wave devices enable large antenna arrays to be packed in small dimensions owing to short wavelengths. This can improve signal directivity by reducing co-channel interference and enhance link reliability. Having large number of small antennas also enables the employment of \ac{MIMO} techniques, multiplexing, diversity and beamforming \cite{hemadeh2018millimeterwave}. The effect of diffraction decreases with an increase in frequency because objects such as buildings introduce sharp shadows \cite{shafi2018microwave}. 
+\par Meanwhile, \ac{mmWave} communications have few disadvantages \cite{hemadeh2018millimeterwave}. The major disadvantages of \ac{mmWave} are blockage and deafness. The high signal attenuation of \ac{mmWave} due to its inability to propagate through common objects is termed as blockage \cite{rappaport2013millimeter}. For example, millimeter waves incur a loss of 20-35 dB due to human body and 20-30 dB due to furniture in the environment \cite{shokrighadikolaei2015millimeterwave}. Compared to lower frequencies, millimeter waves are more vulnerable to atmospheric attenuation and human shadowing \cite{wang2018millimeter}. Millimeter waves are also highly directional \cite{niu2015millimeter}. The misalignment between the main antenna beams of transmitter and receiver causes high signal attenuation which is known as deafness \cite{shokrighadikolaei2015millimeterwave}. This affects the network capacity. Due to the small size of the antennas, the cost of manufacturing hardware of such great precision increases. Moreover, sharing such links between multiple devices comes with higher overhead as compared to non-directional technologies \cite{shokrighadikolaei2016spectrum}. Hence, there is a need to look for fault-tolerant approaches to reduce the effects of all extreme attenuations. 
+\par Conventional methods like error correction techniques (for example \ac{FEC} or \ac{ARQ}) can incur considerable delays. \ac{FEC} adds data redundancy to the link budget and is not bandwidth efficient due to overhead usage of data. With \ac{ARQ}, transmission efficiency is reduced because of the retransmissions. Hence such error control techniques cannot be used in the case of control loops where the delays can get accumulated over time. One method to avoid attenuation due to blockage is to use a relaying technique in which the source node uses an intermediate node (called relay) to bypass the obstacles \cite{congiu2016relayfallback}. However, the source-relay and relay-destination pairs take time to setup and also have to undergo beam training. 
+\par Another method is to switch to conventional microwave frequencies when the obstacle appears and later return to \ac{mmWave} bands. Lower frequencies can more easily penetrate through objects thereby eliminating loss due to blockage. Microwave frequencies are not directional hence the need for beam alignment is reduced. Shadow fading and doppler spread increases with frequency \cite{shafi2018microwave}. Hence lower frequencies have an advantage of less shadow fading and doppler spread. For scenarios with high mobility which require frequent beam training procedures, switching to microwave frequencies is delay optimal \cite{congiu2016relayfallback}. The above mentioned points indicate that using microwave frequencies as a fallback for \ac{mmWave} link has an advantage over other methods like \ac{FEC}, \ac{ARQ} and can also be used in cases where \ac{FEC} and \ac{ARQ} are not good solutions. Hence, this thesis would be focused on using microwave frequencies as a fallback for \ac{mmWave} link. Attention would be paid to the scheduling mechanism needed for switching between \ac{mmWave} and microwave frequency.
+
+\section{Description \& Goals}
+
+The main goal of this thesis is to specify the requirements of a radio fallback system spanning across directional and non-directional wireless channels. The main task is divided into three sub tasks, namely, defining a channel model which takes into account the obstacles in the \ac{LOS} link, implementing a scheduling algorithm to switch from \ac{mmWave} to microwave frequencies in case of obstacles in the direct \ac{LOS} path and evaluation of the proposed fault-tolerant mechanism.
+
+\par As the first step of the thesis, a channel for \ac{LOS} communication will be modelled and parameters like the highest signal strength and the average received signal energy will be recorded. For obstacle modeling, the blockage model mentioned in \cite{congiu2016relayfallback} will be used. The blockage model implements the communication link as a queue system. The presence of a message in the queue is treated as the obstacle which blocks the \ac{LOS}. The channel model which includes the attenuations due to obstacles, atmospheric absorptions, free space path loss and shadow fading will be chosen.
+\par The next step will be to implement a scheduling mechanism which is based on the availability of \ac{LOS} path. For this, a test signal (\ac{mmWave}) is sent to the receiver and the below mentioned criteria are checked for the availability of \ac{LOS} path.
+    \begin{itemize}
+    \item At the receiver, if the \ac{SINR} ratio is greater than the minimum threshold then it implies the availability of \ac{LOS} link. If the \ac{SINR} ratio is less than the threshold, the transmission takes place in the microwave link.
+    \item Once the \ac{LOS} link is implied with the above mentioned check, another level of test is done for the confirmation of \ac{LOS} availability. The ratio of the highest signal strength component to the average energy received is checked. If the ratio is greater than or equal to the threshold, transmission is done using the \ac{mmWave} else a switch is made to the microwave frequency link. 
+    \end{itemize}
+\par Next will be the evaluation of the proposed fault-tolerant mechanism by measuring some parameters like \ac{SINR}, delay spread, path loss, power received, average received signal energy and comparing the proposed mechanism with a simple \ac{mmWave} link (without switching) in a simulation environment. The simulation environment considers Rayleigh and Rician fading. Also, the effect of distance variation between the transmitter and the receiver will be evaluated for both the proposed method as well as the \ac{mmWave} link. The advantages and disadvantages of the proposed mechanism as compared to non fault-tolerant mechanism will be listed. 
+\par Consequent step will be to use channel estimation techniques for predicting the state of the communication link. Local regression methods and likelihood estimates are able to predict the gain and path loss of the channel \cite{huang2019iterative}. These predictions will be included to improve the switching between \ac{mmWave} and microwave link. 
+
+\section{Further Improvements}
+After completing the scheduling mechanism implementation, further improvements can be done which can improve the communication performance. Depending on the progress of the thesis and the time available, one or both of the below mentioned improvements will be implemented.
+
+\subsection{Group of nodes}
+The scheduling mechanism described in this thesis considers that the transmitter is transmitting to one particular node (receiver) and hence checks for \ac{LOS} path with only that node. A group of nodes can be considered instead of a pair of nodes (transmitter and receiver). The transmitter should then check for availability of \ac{LOS} path with all the nodes available in that particular area. If the direct path to one is blocked, the path to another node in the same area can be checked and the message can be transmitted.
+
+\subsection{Piggybacking}
+The scheduling mechanism described in this thesis would incur some delay as the transmitter has to wait for an acknowledgement from the receiver. One method to reduce latency is to use some kind of piggybacking. Once the test signal is received, the receiver can send back the acknowledgement with some metadata. This metadata can contain the information required for the second level of test for the confirmation of the \ac{LOS} path and also some information about the neighbouring nodes. This would use some amount of bandwidth of the channel but would reduce the latency.
+
+\section{Preliminary Outline}
+\overfullrule=0pt
+\begin{outline}
+	\chapter{Introduction}
+	\chapter{Related Work}
+	\chapter{Fundamentals}
+	\section{Millimeter Wave}
+	\section{Path Loss}
+	\section{Scheduling Algorithm}
+	\section{Local Regression}
+	\chapter{Simulation Details}
+	\chapter{Evaluation}
+	\chapter{Conclusion}
+\end{outline}
+
+\section{Work Plan}
+The Gantt chart in Figure~\ref{fig:gantt} provides a tough estimate of the schedule for the realization of this master's thesis. Later half of the thesis period is reserved for further improvement of the algorithm.
+
+\begin{figure}[ht!]
+\centering
+\begin{workplan}{2019-11-28}{24} % start date and number of weeks
+\job{ 0  }{ 2}{Related Work} % start and end week, title
+\job{ 1.5}{ 6}{Channel Model}
+\job{ 4.5}{ 10}{Scheduling Algorithm}
+\job{ 9.5}{ 15  }{Simulations}
+\job{ 13.5}{ 19 }{Evaluation}
+\job{ 18}{ 23 }{Further improvements}
+\job{ 1  }{23 }{Writing}
+\job{23  }{24 }{Presentation}
+\end{workplan}
+\caption{Preliminary Timetable}
+\label{fig:gantt}
+\end{figure}
+
+
+\newpage
+\printbibliography
+
+\end{document}
